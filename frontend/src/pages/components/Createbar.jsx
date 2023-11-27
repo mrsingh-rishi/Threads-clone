@@ -47,9 +47,6 @@ const Createbar = ({ onClose }) => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto"; // Reset height to auto to calculate the scroll height
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-
-      // textareaRef.current.style.width = "width:100%"; // Reset width to auto to calculate the scroll width
-      // textareaRef.current.style.width = `${textareaRef.current.scrollWidth}px`;
     }
   }, [text]);
 
@@ -59,7 +56,7 @@ const Createbar = ({ onClose }) => {
       <h2 className="text-xl font-bold text-white justify-center m-auto w-full flex">
         New Thread
       </h2>
-      <div className="popup p-8 bg-zinc-950 border-2 border-gray-800 rounded-md shadow-md">
+      <div className="popup p-8 bg-bgColor border-2 border-gray-800 rounded-md shadow-md">
         <div className="flex items-center mb-4">
           {/* Photo/Icon */}
           <img
@@ -72,14 +69,14 @@ const Createbar = ({ onClose }) => {
             <span className="font-bold text-white">John Doe</span>
             {/* Input Box */}
             <div className="w-full">
-            <textarea
-              value={text}
-              onChange={handleTextChange}
-              ref={textareaRef}
-              className="p-2 border outline-none focus:outline-none overflow-hidden resize-none w-full bg-inherit text-white border-none"
-            //  style={{width:100%}}
-              placeholder="Start a thread..."
-            />
+              <textarea
+                value={text}
+                onChange={handleTextChange}
+                ref={textareaRef}
+                className="p-2 border outline-none focus:outline-none overflow-hidden resize-none w-full bg-inherit text-white border-none"
+                //  style={{width:100%}}
+                placeholder="Start a thread..."
+              />
             </div>
           </div>
         </div>
@@ -107,12 +104,21 @@ const Createbar = ({ onClose }) => {
         </div>
         {/* Post Button */}
         <div className="w-full flex justify-end">
-          <button
-            className="bg-white text-inherit text-lg px-4 py-2 rounded-full"
-            onClick={handlePost}
-          >
-            Post
-          </button>
+          {isOpen == true ? (
+            <button
+              className="bg-white text-inherit text-lg px-4 py-2 rounded-full"
+              onClick={handlePost}
+            >
+              Post
+            </button>
+          ) : (
+            <button
+              className="bg-white text-inherit text-lg px-4 py-2 rounded-full"
+              onClick={handlePost}
+            >
+              Posted
+            </button>
+          )}
         </div>
       </div>
     </div>

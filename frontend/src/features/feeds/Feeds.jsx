@@ -1,5 +1,10 @@
-import React from "react";
-import PostLayout from "./PostLayout";
+import React, { useEffect } from "react";
+import PostLayout from "../../pages/components/PostLayout";
+import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+
+import { getFeedsAsync, selectFeeds } from "./feedsSlice";
+import { token } from "../user/userSlice";
 
 const Feeds = () => {
   const textPost = {
@@ -29,11 +34,30 @@ const Feeds = () => {
     replies: 4,
     likes: 5,
   };
+
+  const userToken = useSelector(token);
+  console.log(userToken);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getFeedsAsync(userToken));
+  }, [dispatch, userToken]);
+
+  const posts = useSelector(selectFeeds);
+  console.log({ posts });
   return (
     <div className="grid grid-cols-1">
-      <PostLayout data={textPost} />
+      <Link to="/post/id:">
+        <PostLayout data={textPost} />
+      </Link>
       <PostLayout data={photoPost} />
       <PostLayout data={videoPost} />
+      {Array.isArray(posts)?
+        posts.map((post) => (
+          <Link to={`/post/${post._id}`} key={post._id}>
+            <PostLayout data={post} />
+          </Link>
+          
+        )):null}
     </div>
   );
 };
