@@ -1,5 +1,5 @@
-const Post = require("../models/Post");
-const User = require("../models/User");
+const { Post } = require("../models/Post");
+const {User} = require("../models/User");
 exports.getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find({}).sort({ createdAt: -1 });
@@ -11,20 +11,57 @@ exports.getAllPosts = async (req, res) => {
 
 exports.getPostById = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
-    if (!post) {
-      return res.status(404).json({ message: "Post not found" });
+    const Id = req.params.id;
+    const posts = await Post.find({ _id: Id });
+
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ message: "No posts found for the specified author ID" });
     }
-    res.json(post);
+
+    res.json(posts);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+exports.getPostByUserId = async (req, res) => {
+  try {
+    const Id = req.params.id;
+    // console.log(Id);
+    const posts = await Post.find({ author: Id });
+
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ message: "No posts found for the specified author ID" });
+    }
+
+    res.json(posts);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-exports.createPost = async (req, res) => {
-  const { content, imageUrl, author } = req.body;
 
-  const newPost = new Post({ content, imageUrl, author: author });
+
+
+exports.createPost = async (req, res) => {
+  const { content, author ,icon,authorName} = req.body;
+
+  let imageUrl = null;
+  let videoUrl = null;
+
+  // Check if there is an uploaded file
+  if (req.file) {
+    const fileType = req.file.mimetype.split("/")[0]; // 'image' or 'video'
+
+    if (fileType === "image") {
+      imageUrl = "/" + req.file.path;
+      imageUrl = imageUrl.split("/uploads")[1];
+    } else if (fileType === "video") {
+      videoUrl = "/" + req.file.path;
+      videoUrl = videoUrl.split("/uploads")[1];
+    }
+  }
+
+  const newPost = new Post({ content, imageUrl, videoUrl, author,icon,authorName });
 
   try {
     const savedPost = await newPost.save();
@@ -66,7 +103,7 @@ exports.deletePost = async (req, res) => {
 exports.updatePostLikes = async (req, res) => {
   const { postId } = req.params;
   const { action, username } = req.body;
-
+  // console.log(action)
   try {
     let updatedPost;
 
@@ -77,7 +114,7 @@ exports.updatePostLikes = async (req, res) => {
     }
 
     // Find the user by username
-    const user = await User.findOne({ username });
+    const user = await User.findOne( {username} );
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -90,7 +127,7 @@ exports.updatePostLikes = async (req, res) => {
       if (alreadyLiked) {
         return res.status(400).json({ message: "User already liked the post" });
       }
-
+    
       // Add user ID to the likes array
       post.likes.push(user._id);
       updatedPost = await post.save();

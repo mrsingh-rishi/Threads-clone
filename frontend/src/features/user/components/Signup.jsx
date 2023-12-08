@@ -1,7 +1,7 @@
 import bg from "../../../assests/loginbackground.png";
 import icon from "../../../assests/icon.svg";
 import { Link, Navigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SignupAsync, checkUserAsync, selectUserData } from "../userSlice";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -11,13 +11,16 @@ export function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
   const [er, seter] = useState("");
+  const [stay, move] = useState(false);
 
   const dispatch = useDispatch();
   const handleSubmit = (e) => {
     e.preventDefault();
     if (password !== confirmPass) {
       seter("Password didn't match with confirm password");
-      console.log({ er });
+    } else if (!/^[a-zA-Z0-9]+$/.test(userName)) {
+      seter("Username should not have special characters or spaces");
+      return;
     } else {
       dispatch(
         SignupAsync({
@@ -25,29 +28,31 @@ export function Signup() {
           password: password,
         })
       );
-
-      console.log({
-        userName,
-        password,
-      });
     }
   };
+  useEffect(() => {
+    if (userData && userData?.token) move(true);
+  }, [userData]);
 
-  const storedToken = localStorage.getItem('authToken');
-  
-  if (storedToken) {
+  useEffect(() => {
+    const storedToken = localStorage.getItem("authToken");
+
+    if (storedToken) {
       // Token exists in localStorage, you can use it for authentication or other purposes
-      
+
       dispatch(checkUserAsync(storedToken));
-  } else {
+      move(true);
+    } else {
+      move(false);
       // Token doesn't exist in localStorage
-      console.log('No token found');
-  }
-  
+      // console.log("No token found");
+    }
+  }, []);
+
   // color: #1E1E1E
   return (
     <>
-      {userData && <Navigate to="/" replace={true}></Navigate>}
+      {userData && stay && <Navigate to="/" replace={true}></Navigate>}
       <div>
         <img
           src={bg}
@@ -74,7 +79,9 @@ export function Signup() {
                   type="text"
                   id="username"
                   name="username"
-                  className="bg-inputColor text-white text-sm py-3 w-full border-none rounded-md px-3 mt-1 focus:outline-white "
+                  pattern="^[a-zA-Z0-9]+$"
+                  title="Username should not have special characters or spaces"
+                  className="bg-inputColor text-white text-sm py-3 w-full border-none rounded-md px-3 mt-1 focus:outline-white"
                   placeholder="Username"
                   onChange={(e) => {
                     setuserName(e.target.value);

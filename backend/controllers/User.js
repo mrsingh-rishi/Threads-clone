@@ -1,4 +1,4 @@
-const User = require("../models/User"); // Adjust the path as needed
+const { User } = require("../models/User"); // Adjust the path as needed
 const jwt = require("jsonwebtoken");
 
 // Controller functions
@@ -23,12 +23,46 @@ exports.getUserById = async (req, res) => {
   }
 };
 
+exports.getUserByUsername = async (req, res) => {
+  try {
+    const username = req.body.username;
+
+    if (!username) {
+      return res
+        .status(400)
+        .json({ message: "Username is required in the query parameters." });
+    }
+
+    const regex = new RegExp(username, "i");
+    const users = await User.find({
+      $or: [{ name: { $regex: regex } }, { username: { $regex: regex } }],
+    });
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: "No users found" });
+    }
+
+    res.status(200).json(users);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 exports.updateUser = async (req, res) => {
   try {
+    // console.log(req);
+    const userId = req.params.id;
     const updatedUserData = req.body; // Get the updated data from req.body
 
+    // Check if a file was uploaded
+    if (req.file) {
+      // Update the user's imageURL with the uploaded file name or URL
+      updatedUserData.imageURL = "/" + req.file.filename;
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
+      userId,
       { $set: updatedUserData },
       { new: true }
     ).select("-password");
