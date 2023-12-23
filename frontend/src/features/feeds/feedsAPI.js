@@ -2,10 +2,10 @@ import { resolvePath } from "react-router-dom";
 
 export function getFeeds(token) {
   return new Promise(async (resolve) => {
-    const response = await fetch("http://localhost:8080/posts", {
+    const response = await fetch("https://threads-clone-jb28.onrender.com/posts", {
       method: "GET",
       headers: {
-        "Content-Type": "application/json",
+        "content-Type": "application/json",
         Authorization: `Bearer ${token}`,
         // You can add more headers if needed
       },
@@ -19,23 +19,28 @@ export function createFeed({ userData, token }) {
   // console.log({ userData, token });
   return new Promise(async (resolve) => {
     try {
-      const response = await fetch("http://localhost:8080/posts", {
+      const response = await fetch("https://threads-clone-jb28.onrender.com/posts", {
         method: "POST",
         headers: {
+          "content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: userData,
+        body: JSON.stringify({
+          content:userData.content,
+          icon:userData.icon,
+          author:userData.author,
+          authorName:userData.authorName,
+          imageUrl:userData.imageUrl
+        }),
       });
       if (response.ok) {
-        // Handle successful response
         const data = await response.json();
-        // console.log("Response from server:", data);
+        resolve({ data });
       } else {
-        // Handle error response
         console.error("Error uploading image:", response.statusText);
       }
     } catch (e) {
-      // console.log(e);
+      console.log(e);
     }
   });
 }
@@ -44,7 +49,7 @@ export function updateLike({ username, action, token, id }) {
   // console.log({ username, action, token, id });
   return new Promise(async (resolve) => {
     try {
-      const response = await fetch(`http://localhost:8080/posts/${id}`, {
+      const response = await fetch(`https://threads-clone-jb28.onrender.com/posts/${id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -60,7 +65,6 @@ export function updateLike({ username, action, token, id }) {
         const data = await response.json();
         // console.log("Response from server:", data);
         resolve({ data });
-      
       } else {
         // Handle error response
         console.error("Error :", response.statusText);
@@ -70,9 +74,9 @@ export function updateLike({ username, action, token, id }) {
     }
   });
 }
-export function getFeedsbyId({token,id}) {
+export function getFeedsbyId({ token, id }) {
   return new Promise(async (resolve) => {
-    const response = await fetch(`http://localhost:8080/posts/${id}`, {
+    const response = await fetch(`https://threads-clone-jb28.onrender.com/posts/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -85,16 +89,19 @@ export function getFeedsbyId({token,id}) {
   });
 }
 
-export function getFeedsbyUserId({token,id}) {
+export function getFeedsbyUserId({ token, id }) {
   return new Promise(async (resolve) => {
-    const response = await fetch(`http://localhost:8080/posts/userIdpost/${id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-        // You can add more headers if needed
-      },
-    });
+    const response = await fetch(
+      `https://threads-clone-jb28.onrender.com/posts/userIdpost/${id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          // You can add more headers if needed
+        },
+      }
+    );
     const data = await response.json();
     resolve({ data });
   });

@@ -26,10 +26,11 @@ const Auth = (req, res, next) => {
     res.sendStatus(401);
   }
 };
-app.use("/", express.static("uploads"));
+app.use(express.static("build"));
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "10mb" })); // Adjust the limit as needed
+app.use(express.urlencoded({ limit: "10mb", extended: true })); // Adjust the limit as needed
 
 // Rooutes
 app.get("/", (req, res) => {
